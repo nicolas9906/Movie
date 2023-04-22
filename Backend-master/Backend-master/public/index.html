@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso denegado</title>
+</head>
+<body>
+
+    <h1>Google Sing in</h1>
+
+            <div id="g_id_onload"
+            data-client_id="215663557035-6e1cv6qgij1rr5fb5o3ccia22vp36rb8.apps.googleusercontent.com"
+            data-auto_prompt="false"
+            data-callback="handleCredentialResponse">
+            >
+        </div>
+        <div class="g_id_signin"
+            data-type="standard"
+            data-size="large"
+            data-theme="outline"
+            data-text="sign_in_with"
+            data-shape="rectangular"
+            data-logo_alignment="left">
+        </div>
+        
+        <button id="cerrar_sesion">
+            Cerrar session
+        </button>
+
+
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <script>
+        function handleCredentialResponse(response) {
+
+
+            //Google token : ID_TOKEN
+
+            //console.log('id_token',response.credential);
+
+            const body = {id_token: response.credential};
+
+            fetch('https://backendv.herokuapp.com/api/auth/google',{
+               method: 'POST',
+               headers: {
+                   'Content-Type':'application/json'
+               },
+               body: JSON.stringify(body)
+            })
+            .then(resp => resp.json())
+            .then(resp=>{
+                console.log(resp)
+                localStorage.setItem('correo',resp.usuario.correo)
+            })
+            .catch(console.warn);
+          
+        }
+
+        const button= document.getElementById('cerrar_sesion');
+
+        button.onclick= async () => {
+            console.log(google.accounts.id)
+            google.accounts.id.disableAutoSelect()
+            
+
+            google.accounts.id.revoke( localStorage.getItem('correo'), done =>{
+                console.log('consent revoked');
+                localStorage.clear();
+                location.reload();
+            });
+        }
+      </script>
+
+
+</body>
+</html>
